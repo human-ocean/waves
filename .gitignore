@@ -2,3 +2,6 @@
 .Rhistory
 .RData
 .Ruserdata
+
+#Download from https://globalfishingwatch.org/data-download/datasets/public-sentinel2-vessel-detections%3Av1.0
+data/raw/vessel_detections/

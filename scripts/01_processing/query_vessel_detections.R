@@ -7,7 +7,8 @@
 # September 3, 2026
 #
 # Collects vessel detections from Sentinel 2 (Optical imagery) from GFW and
-# exports them as an rds file
+# exports them as an rds file. We only extract data for 2025 and that falls
+# within a bounding box of interest.
 #
 ################################################################################
 

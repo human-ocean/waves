@@ -36,31 +36,28 @@ con_sent <- dbConnect(drv = bigquery(),
 
 # PROCESSING ###################################################################
 
-# Define longitudinal and latitudinal ranges for the data. This is probaly too big
-# for now, but that's ok.
-lon_range <- c(-80.98726, -80.03116)
-lat_range <- c(25.13743, 28.79214)
-
-# Get SENTINEL-2 detections
+# Get SENTINEL-2 detections ----------------------------------------------------
 sent_raw <- tbl(con_sent, "detect_scene_match_pipe_v4") |> 
-  filter(sql("EXTRACT(YEAR FROM detect_timestamp) = 2025")) |> 
+  filter(sql("EXTRACT(YEAR FROM detect_timestamp) = 2025"),
+         !likely_infrastructure) |>
   mutate(matched = sql("ssvid IS NOT NULL")) |> 
   select(lon = detect_lon,
          lat = detect_lat,
          matched,
          date) |> 
-  filter(between(lon, -80.98726, -80.03116),
-         between(lat, 25.13743, 28.79214 ),
+  # Define longitudinal and latitudinal ranges for the data. This is probaly too big
+  # for now, but that's ok.
+  filter(between(lon, -80.5, -80),
+         between(lat, 25, 26),
          sql("EXTRACT(YEAR FROM date) =2025")) |> 
   select(lon, lat, date) |> 
   collect()
-
 
 # EXPORT #######################################################################
 
 ## The final step --------------------------------------------------------------  
 write_rds(x = sent_raw,
-          file = here("data/raw/vessel_detections/queried_detections.rds"))
+          file = here("data/processed/miami_dade_vessel_detections.rds"))
 
 
 

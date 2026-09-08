@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ESRI_ItemInformation Culture='en-US'>
+<name>UnifiedReefMap_v2_2</name>
+<guid>865BFE12-56FF-4722-9783-A0681FA1843E</guid>
+<version>1.0</version>
+<created></created>
+<modified></modified>
+<catalogpath></catalogpath>
+<snippet></snippet>
+<description>&lt;DIV STYLE=&quot;text-align:Left;font-size:12pt&quot;&gt;&lt;DIV&gt;&lt;DIV&gt;&lt;P&gt;&lt;SPAN&gt;The Unified Reef Map is a regional map of benthic habitats that occur throughout the Florida reef tract. The Unified Reef Map consists of individual maps and monitoring data provided by our numerous partners. The purpose of the Unified Reef Map is to provide a comprehensive view of habitats from Martin County through the Florida Keys to the Dry Tortugas. The Unified Reef Map supports the larger effort to coordinate scientific research and promote a reef-wide approach for protecting Florida’s reef tract. To create the URM, individual maps are integrated, data are edited where overlapping or neighboring maps disagree, and habitat classes are cross-walked to allow comparisons between maps. The URM symbolizes benthic habitats, or bottom types, using the Unified Classification (UC) system.  The UC framework allows translation between different classification schemes while retaining the original detailed information provided by our mapping partners. There are five hierarchical UC classes starting at UC Level 0 which represents broad habitat classes and can be consistently translated between individual maps. At the most detailed UC Level 4, benthic habitats are described differently between map providers and may differ throughout the Unified Reef Map. The UC system is also cross-walked to the Coastal and Marine Ecological Classification Standard (CMECS). Un-edited source maps provided by URM map partners are also available. The Unified Reef Map is a living map and will be updated as new data become available. Version 2.2 released January 2025.  For more information visit: http://ocean.floridamarine.org/IntegratedReefMap/UnifiedReefTract.htm&lt;/SPAN&gt;&lt;/P&gt;&lt;/DIV&gt;&lt;/DIV&gt;&lt;/DIV&gt;</description>
+<summary></summary>
+<title>UnifiedReefMap_v2_2</title>
+<tags></tags>
+<type>Layer Package</type>
+<typekeywords>
+<typekeyword>Layer Package</typekeyword>
+<typekeyword>Data</typekeyword>
+<typekeyword>ArcGIS Pro</typekeyword>
+<typekeyword>ArcGIS Explorer</typekeyword>
+<typekeyword>lpkx</typekeyword>
+</typekeywords>
+<thumbnail>thumbnail/thumbnail.png</thumbnail>
+<documentation></documentation>
+<url></url>
+<extent>
+<xmin>-83.1785812298531</xmin>
+<ymin>24.2442080760583</ymin>
+<xmax>-79.9237488878747</xmax>
+<ymax>27.3200330505976</ymax>
+</extent>
+<spatialreference>NAD_1983_Albers</spatialreference>
+<minScale>591657527.591555</minScale>
+<maxScale>1128.4971760000001</maxScale>
+<datalastModifiedTime></datalastModifiedTime>
+<accessinformation>This project was made possible by the contribution of data and expertise from partners and funded by NOAA&apos;s Office of Ocean and Coastal Resource Management in partnership with the Florida Department of Environmental Protection&apos;s Coastal Management Program.  See project metadata for individual source map credits.</accessinformation>
+<licenseinfo></licenseinfo>
+</ESRI_ItemInformation>

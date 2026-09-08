@@ -1,0 +1,132 @@
+---
+title: "Polished Map"
+author: "JD Reigrut"
+date: "2026-09-08"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+pacman::p_load(
+  here,
+  tidyverse,
+  maptiles,
+  ggspatial,
+  sf,
+  mapview,
+  here
+)
+
+```
+
+# Satelite Basemap 
+```{r}
+# Bounding box of Biscayne Bay
+bb_bbox <- st_bbox(c(
+  xmin = -80.46, 
+  ymin =  25.18,  
+  xmax = -80.05, 
+  ymax =  25.82   
+), crs = st_crs(4326))
+
+bb_poly <- st_as_sfc(bb_bbox)
+
+basemap <- get_tiles(bb_poly, provider = "Esri.WorldImagery", zoom = 11)
+```
+
+# Vessle Tracking Heatmap 
+```{r}
+sent <- read_rds(file = here("data/processed/miami_dade_vessel_detections.rds"))
+
+res <- 0.01 # In degrees
+
+sent_grid <- sent |> 
+  mutate(lon = (floor(lon / res) * res) + (res / 2),
+         lat = (floor(lat / res) * res) + (res / 2)) |> 
+  count(lon, lat) |> 
+  collect()
+
+#ggplot(sent_grid, aes(x = lon, y = lat, fill = n)) + 
+  #geom_tile() + 
+  #scale_fill_viridis_c(option = "inferno", direction = -1,  trans = "log10") + 
+  #coord_equal() +
+  #theme_bw()
+```
+
+# Seagrass Map (marine megafauna)
+```{r}
+seagrass <- st_read(here("data", "raw", "Seagrass_Habitat_in_Florida", "Seagrass_Habitat_in_Florida.shp"))
+
+# Filtering the data to only include continuous seagrass polygons within the Biscayne Bay bounding box
+seagrass_filt <- seagrass %>%
+  filter(
+    SEAGRASS == "Continuous"
+  )
+
+seagrass_crop <- seagrass %>% 
+  filter(SEAGRASS == "Continuous") %>% 
+  st_transform(st_crs(bb_bbox)) %>% 
+  st_make_valid() %>% 
+  st_crop(bb_bbox)
+
+#ggplot() +
+  #geom_sf(data = seagrass_crop, color = "darkolivegreen", fill = "darkolivegreen") +
+  #theme_minimal()
+```
+
+# Biscayne Bay National Park Polygon 
+```{r}
+bb_np <- st_read(here("data", "raw", "key_biscayne_np", "BISC_tracts.shp"))
+
+#ggplot() +
+  #geom_sf(data = bb_np, color = "pink", fill = "pink") +
+  #theme_minimal()
+```
+
+## Map with all spatial layers
+```{r}
+ggplot() +
+  
+  ## Satelite basemap
+  layer_spatial(basemap) +
+  
+  ## Nqtional park layer
+  geom_sf(data = bb_np_crop, color = "pink", fill = "pink", linewidth = 0.8, aes(color = "Biscayne Bay NP")) +
+  
+  ## Seagrass layer
+  geom_sf(data = seagrass_crop, fill = "greenyellow", color = "greenyellow", alpha = 0.6, linewidth = 0.1) +
+  
+  ## Vessle Tracking 
+  geom_tile(data = sent_grid, aes(x = lon, y = lat, fill = n), alpha = 0.5) +
+  
+  scale_fill_viridis_c(
+    name = "Vessel Presence",
+    option = "inferno", 
+    direction = -1, 
+    trans = "log10",
+    na.value = "transparent"
+  ) +
+  
+  coord_sf(
+    xlim = c(bb_bbox["xmin"], bb_bbox["xmax"]),
+    ylim = c(bb_bbox["ymin"], bb_bbox["ymax"]),
+    crs = st_crs(4326),
+    expand = FALSE
+  ) +
+  
+  annotation_scale(location = "bl", width_hint = 0.2, text_col = "white") +
+  annotation_north_arrow(location = "tr", which_north = "true") +
+  
+  labs(
+    title = "WAVES -- Biscayne Bay Map",
+    x = "Longitude", 
+    y = "Latitude"
+  ) +
+  theme_minimal() +
+  theme(
+    plot.title = element_text(face = "bold", size = 14),
+    panel.grid = element_blank())
+  
+```
+

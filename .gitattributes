@@ -1,3 +1,4 @@
 waves/data/raw/Seagrass_Habitat_in_Florida/**/* filter=lfs diff=lfs merge=lfs -text
 waves/data/raw/**/* filter=lfs diff=lfs merge=lfs -text
 data/raw/Seagrass_Habitat_in_Florida/Seagrass_Habitat_in_Florida.shp filter=lfs diff=lfs merge=lfs -text
+git/raw/UnifiedReefMap_v2_2/** filter=lfs diff=lfs merge=lfs -text

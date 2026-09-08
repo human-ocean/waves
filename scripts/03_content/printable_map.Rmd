@@ -39,7 +39,7 @@ basemap <- get_tiles(bb_poly, provider = "Esri.WorldImagery", zoom = 11)
 ```{r}
 sent <- read_rds(file = here("data/processed/miami_dade_vessel_detections.rds"))
 
-res <- 0.01 # In degrees
+res <- 0.002 # In degrees
 
 sent_grid <- sent |> 
   mutate(lon = (floor(lon / res) * res) + (res / 2),
@@ -47,11 +47,14 @@ sent_grid <- sent |>
   count(lon, lat) |> 
   collect()
 
-#ggplot(sent_grid, aes(x = lon, y = lat, fill = n)) + 
-  #geom_tile() + 
-  #scale_fill_viridis_c(option = "inferno", direction = -1,  trans = "log10") + 
-  #coord_equal() +
-  #theme_bw()
+sent_clean <- sent_grid %>%
+  filter(n >= 2)
+
+ggplot(sent_clean, aes(x = lon, y = lat)) + 
+  geom_tile() + 
+ # scale_fill_viridis_c(option = "inferno", direction = -1,  trans = "log10") + 
+  coord_equal() +
+  theme_bw()
 ```
 
 # Seagrass Map (marine megafauna)
@@ -70,10 +73,24 @@ seagrass_crop <- seagrass %>%
   st_make_valid() %>% 
   st_crop(bb_bbox)
 
-#ggplot() +
-  #geom_sf(data = seagrass_crop, color = "darkolivegreen", fill = "darkolivegreen") +
-  #theme_minimal()
+ggplot() +
+  geom_sf(data = seagrass_crop, color = "darkolivegreen", fill = "darkolivegreen") +
+  theme_minimal()
 ```
+
+# Coral Reef map 
+```{r}
+coral <- st_read(
+  dsn = here("data", "raw", "UnifiedReefMap_v2_2", "commondata", "fwc_unifiedfloridareefmap_v2_2.gdb"), 
+  layer = "UnifiedReefMap")
+
+coral_crop <- coral %>% 
+ filter(ClassLv1 %in% c("Aggregate Reef", "Individual or Aggregated Patch Reef")) %>%
+  st_transform(st_crs(bb_bbox)) %>% 
+  st_make_valid() %>% 
+  st_crop(bb_bbox)
+```
+
 
 # Biscayne Bay National Park Polygon 
 ```{r}
@@ -84,9 +101,9 @@ bb_np_crop <- bb_np %>%
   st_make_valid() %>% 
   st_crop(bb_bbox)
 
-#ggplot() +
-  #geom_sf(data = bb_np, color = "pink", fill = "pink") +
-  #theme_minimal()
+ggplot() +
+  geom_sf(data = bb_np, color = "pink", fill = "pink") +
+  theme_minimal()
 ```
 
 ## Map with all spatial layers
@@ -100,18 +117,10 @@ ggplot() +
   geom_sf(data = bb_np_crop, color = "pink", fill = "pink", linewidth = 0.8, aes(color = "Biscayne Bay NP")) +
   
   ## Seagrass layer
-  geom_sf(data = seagrass_crop, fill = "greenyellow", color = "greenyellow", alpha = 0.6, linewidth = 0.1) +
+  geom_sf(data = coral_crop, fill = "greenyellow", color = "greenyellow", alpha = 0.6, linewidth = 0.1) +
   
   ## Vessle Tracking 
-  geom_tile(data = sent_grid, aes(x = lon, y = lat, fill = n), alpha = 0.5) +
-  
-  scale_fill_viridis_c(
-    name = "Vessel Presence",
-    option = "inferno", 
-    direction = -1, 
-    trans = "log10",
-    na.value = "transparent"
-  ) +
+  geom_tile(data = sent_clean, aes(x = lon, y = lat), alpha = 0.5) +
   
   coord_sf(
     xlim = c(bb_bbox["xmin"], bb_bbox["xmax"]),

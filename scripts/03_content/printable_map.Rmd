@@ -79,6 +79,11 @@ seagrass_crop <- seagrass %>%
 ```{r}
 bb_np <- st_read(here("data", "raw", "key_biscayne_np", "BISC_tracts.shp"))
 
+bb_np_crop <- bb_np %>% 
+  st_transform(st_crs(bb_bbox)) %>% 
+  st_make_valid() %>% 
+  st_crop(bb_bbox)
+
 #ggplot() +
   #geom_sf(data = bb_np, color = "pink", fill = "pink") +
   #theme_minimal()

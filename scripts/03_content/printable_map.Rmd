@@ -25,14 +25,28 @@ pacman::p_load(
 # Bounding box of Biscayne Bay
 bb_bbox <- st_bbox(c(
   xmin = -80.46, 
-  ymin =  25.18,  
+  ymin =  25.3,  
   xmax = -80.05, 
-  ymax =  25.82   
+  ymax =  25.7   
 ), crs = st_crs(4326))
 
 bb_poly <- st_as_sfc(bb_bbox)
 
 basemap <- get_tiles(bb_poly, provider = "Esri.WorldImagery", zoom = 11)
+```
+
+# Biscayne Bay National Park Polygon 
+```{r}
+bb_np <- st_read(here("data", "raw", "key_biscayne_np", "BISC_tracts.shp"))
+
+bb_np_crop <- bb_np %>% 
+  st_transform(st_crs(bb_bbox)) %>% 
+  st_make_valid() %>% 
+  st_crop(bb_bbox)
+
+ggplot() +
+  geom_sf(data = bb_np, color = "pink", fill = "pink") +
+  theme_minimal()
 ```
 
 # Vessle Tracking Heatmap 
@@ -58,7 +72,7 @@ ggplot(sent_clean, aes(x = lon, y = lat)) +
 ```
 
 # Seagrass Map (marine megafauna)
-```{r}
+```{r, eval = FALSE}
 seagrass <- st_read(here("data", "raw", "Seagrass_Habitat_in_Florida", "Seagrass_Habitat_in_Florida.shp"))
 
 # Filtering the data to only include continuous seagrass polygons within the Biscayne Bay bounding box
@@ -89,22 +103,13 @@ coral_crop <- coral %>%
   st_transform(st_crs(bb_bbox)) %>% 
   st_make_valid() %>% 
   st_crop(bb_bbox)
-```
-
-
-# Biscayne Bay National Park Polygon 
-```{r}
-bb_np <- st_read(here("data", "raw", "key_biscayne_np", "BISC_tracts.shp"))
-
-bb_np_crop <- bb_np %>% 
-  st_transform(st_crs(bb_bbox)) %>% 
-  st_make_valid() %>% 
-  st_crop(bb_bbox)
 
 ggplot() +
-  geom_sf(data = bb_np, color = "pink", fill = "pink") +
+  geom_sf(data = coral_crop, color = "green", fill = "green") +
   theme_minimal()
 ```
+
+
 
 ## Map with all spatial layers
 ```{r}

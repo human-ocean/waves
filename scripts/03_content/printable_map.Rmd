@@ -13,6 +13,8 @@ pacman::p_load(
   tidyverse,
   maptiles,
   ggspatial,
+  ggpattern,
+  ggrepel,
   sf,
   mapview,
   here
@@ -25,9 +27,9 @@ pacman::p_load(
 # Bounding box of Biscayne Bay
 bb_bbox <- st_bbox(c(
   xmin = -80.46, 
-  ymin =  25.3,  
-  xmax = -80.05, 
-  ymax =  25.7   
+  ymin = 25.30,  
+  xmax = -80.00, 
+  ymax = 25.75   
 ), crs = st_crs(4326))
 
 bb_poly <- st_as_sfc(bb_bbox)
@@ -112,21 +114,132 @@ ggplot() +
 
 
 ## Map with all spatial layers
+
 ```{r}
+you_are_here <- data.frame(
+  lon = -80.1627,
+  lat = 25.7326,
+  label = "You Are Here!"
+)
+
+you_are_here_sf <- st_as_sf(
+  you_are_here,
+  coords = c("lon", "lat"),
+  crs = 4326
+)
+
+legend_dummy <- data.frame(
+  lon = NA_real_,
+  lat = NA_real_,
+  feature = factor(
+    c("Boat Traffic", "Biscayne Bay National Park", "Coral Habitat"),
+    levels = c("Boat Traffic", "Biscayne Bay National Park", "Coral Habitat")
+  )
+)
+
 ggplot() +
   
-  ## Satelite basemap
+  ## Satellite basemap
   layer_spatial(basemap) +
   
-  ## Nqtional park layer
-  geom_sf(data = bb_np_crop, color = "pink", fill = "pink", linewidth = 0.8, aes(color = "Biscayne Bay NP")) +
+  ## Vessel Tracking 
+  geom_tile(
+    data = sent_clean, 
+    aes(x = lon, y = lat),
+    fill = "#fc8de6",
+    alpha = 0.75,
+    show.legend = FALSE
+  ) +
   
-  ## Seagrass layer
-  geom_sf(data = coral_crop, fill = "greenyellow", color = "greenyellow", alpha = 0.6, linewidth = 0.1) +
+  ## Coral habitat
+  geom_sf_pattern(
+    data = coral_crop,
+    pattern = "crosshatch",
+    fill = NA,
+    pattern_colour = "#00E5FF",
+    color = "#00E5FF",
+    pattern_density = 0.35,
+    pattern_spacing = 0.015,
+    linewidth = 0.4,
+    show.legend = FALSE
+  ) +
   
-  ## Vessle Tracking 
-  geom_tile(data = sent_clean, aes(x = lon, y = lat), alpha = 0.5) +
+  ## Biscayne Bay NP
+  geom_sf(
+    data = bb_np_crop,
+    fill = "#FFD600",
+    alpha = 0.2,
+    color = "#FFD600",
+    linewidth = 0.8,
+    linetype = "dashed",
+    show.legend = FALSE
+  ) + 
+
+  ## Dummy layer generating the clean legend keys
+  geom_tile(
+    data = legend_dummy,
+    aes(x = lon, y = lat, fill = feature)
+  ) +
+
+  ## Legend Scale
+  scale_fill_manual(
+    name = NULL,
+    values = c(
+      "Boat Traffic" = "#fc8de6",
+      "Biscayne Bay National Park" = "#FFD600",
+      "Coral Habitat" = "#00E5FF"
+    ),
+    guide = guide_legend(
+      override.aes = list(
+        fill = c("#fc8de6", alpha("#FFD600", 0.2), "#00E5FF"),
+        color = c(NA, "#FFD600", "#00E5FF"),
+        linetype = c("blank", "dashed", "solid"),
+        linewidth = c(0, 0.8, 0.8),
+        alpha = c(0.75, 1, 1)
+      )
+    )
+  ) +
+
+  ## You are here marker
+  geom_sf(
+    data = you_are_here_sf,
+    shape = 8,
+    size = 3,
+    color = "white",
+    stroke = 3,
+    show.legend = FALSE
+  ) +
   
+  geom_sf(
+    data = you_are_here_sf,
+    shape = 8,
+    size = 3,
+    color = "#FFD600",
+    stroke = 1.5,
+    show.legend = FALSE
+  ) +
+  
+  ## Label marker
+  geom_label_repel(
+    data = you_are_here,
+    aes(x = lon, y = lat, label = label),
+    nudge_x = -0.06,
+    nudge_y = 0.01,
+    hjust = 1,
+    direction = "x",
+    point.padding = 0.5,
+    box.padding = 0.3,
+    fontface = "bold",
+    family = "serif",
+    size = 2,
+    fill = "#FFD600",
+    color = "black",
+    label.r = unit(0.3, "lines"),
+    label.size = 0.4,
+    segment.colour = "#FFD600",
+    segment.linewidth = 0.6
+  ) + 
+
   coord_sf(
     xlim = c(bb_bbox["xmin"], bb_bbox["xmax"]),
     ylim = c(bb_bbox["ymin"], bb_bbox["ymax"]),
@@ -134,18 +247,47 @@ ggplot() +
     expand = FALSE
   ) +
   
-  annotation_scale(location = "bl", width_hint = 0.2, text_col = "white") +
-  annotation_north_arrow(location = "tr", which_north = "true") +
+  annotation_scale(
+    location = "bl", 
+    width_hint = 0.12, 
+    height = unit(0.2, "cm"),
+    text_col = "white",
+    text_family = "serif",
+    text_cex = 0.8
+  ) +
+    
+  annotation_north_arrow(
+    location = "tl", 
+    which_north = "true",
+    height = unit(1, "cm"),
+    width = unit(1, "cm"),
+    style = north_arrow_fancy_orienteering(
+      line_col = "white", 
+      fill = c("white", "grey30"),
+      text_col = "white"
+    )
+  ) +
   
   labs(
-    title = "WAVES -- Biscayne Bay Map",
+    title = "Exploring Biscayne Bay!",
+    subtitle = "Investigating coral reefs and boat traffic",
     x = "Longitude", 
     y = "Latitude"
   ) +
+    
   theme_minimal() +
   theme(
-    plot.title = element_text(face = "bold", size = 14),
-    panel.grid = element_blank())
-  
+    plot.title = element_text(face = "bold", size = 18, family = "serif", hjust = 0.5),
+    plot.subtitle = element_text(face = "bold", size = 12, family = "serif", hjust = 0.5),
+    panel.grid = element_blank(),
+    legend.position = "bottom",
+    legend.box = "horizontal",
+    legend.margin = margin(t = 4, r = 0, b = 0, l = 0),
+    legend.key.width = unit(1.2, "cm"),
+    legend.title = element_blank(),
+    legend.text = element_text(color = "black", family = "serif"),
+    axis.text = element_text(color = "grey30", size = 8, family = "serif"),
+    axis.title = element_text(color = "grey30", family = "serif")
+  )
 ```
 

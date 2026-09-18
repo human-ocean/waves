@@ -137,7 +137,7 @@ legend_dummy <- data.frame(
   )
 )
 
-ggplot() +
+map <- ggplot() +
   
   ## Satellite basemap
   layer_spatial(basemap) +
@@ -160,7 +160,7 @@ ggplot() +
     color = "#00E5FF",
     pattern_density = 0.35,
     pattern_spacing = 0.015,
-    linewidth = 0.4,
+    linewidth = 1.2,
     show.legend = FALSE
   ) +
   
@@ -170,7 +170,7 @@ ggplot() +
     fill = "#FFD600",
     alpha = 0.2,
     color = "#FFD600",
-    linewidth = 0.8,
+    linewidth = 2,
     linetype = "dashed",
     show.legend = FALSE
   ) + 
@@ -194,7 +194,7 @@ ggplot() +
         fill = c("#fc8de6", alpha("#FFD600", 0.2), "#00E5FF"),
         color = c(NA, "#FFD600", "#00E5FF"),
         linetype = c("blank", "dashed", "solid"),
-        linewidth = c(0, 0.8, 0.8),
+        linewidth = c(0, 2.0, 1.2),
         alpha = c(0.75, 1, 1)
       )
     )
@@ -204,7 +204,7 @@ ggplot() +
   geom_sf(
     data = you_are_here_sf,
     shape = 8,
-    size = 3,
+    size = 14,
     color = "white",
     stroke = 3,
     show.legend = FALSE
@@ -213,7 +213,7 @@ ggplot() +
   geom_sf(
     data = you_are_here_sf,
     shape = 8,
-    size = 3,
+    size = 14,
     color = "#FFD600",
     stroke = 1.5,
     show.legend = FALSE
@@ -228,16 +228,16 @@ ggplot() +
     hjust = 1,
     direction = "x",
     point.padding = 0.5,
-    box.padding = 0.3,
+    box.padding = 1,
     fontface = "bold",
     family = "serif",
-    size = 2,
+    size = 14,
     fill = "#FFD600",
     color = "black",
-    label.r = unit(0.3, "lines"),
-    label.size = 0.4,
+    label.r = unit(0.5, "lines"),
+    label.size = 1,
     segment.colour = "#FFD600",
-    segment.linewidth = 0.6
+    segment.linewidth = 3
   ) + 
 
   coord_sf(
@@ -249,18 +249,18 @@ ggplot() +
   
   annotation_scale(
     location = "bl", 
-    width_hint = 0.12, 
-    height = unit(0.2, "cm"),
+    width_hint = 0.15, 
+    height = unit(2, "cm"),
     text_col = "white",
     text_family = "serif",
-    text_cex = 0.8
+    text_cex = 3
   ) +
     
   annotation_north_arrow(
     location = "tl", 
     which_north = "true",
-    height = unit(1, "cm"),
-    width = unit(1, "cm"),
+    height = unit(6, "cm"),
+    width = unit(6, "cm"),
     style = north_arrow_fancy_orienteering(
       line_col = "white", 
       fill = c("white", "grey30"),
@@ -275,19 +275,29 @@ ggplot() +
     y = "Latitude"
   ) +
     
-  theme_minimal() +
+  theme_minimal(base_size = 22, base_family = "serif") +
   theme(
-    plot.title = element_text(face = "bold", size = 18, family = "serif", hjust = 0.5),
-    plot.subtitle = element_text(face = "bold", size = 12, family = "serif", hjust = 0.5),
+    plot.title = element_text(face = "bold", size = 64, family = "serif", hjust = 0.5),
+    plot.subtitle = element_text(face = "bold", size = 42, family = "serif", hjust = 0.5),
     panel.grid = element_blank(),
     legend.position = "bottom",
     legend.box = "horizontal",
     legend.margin = margin(t = 4, r = 0, b = 0, l = 0),
-    legend.key.width = unit(1.2, "cm"),
+    legend.key.width = unit(6, "cm"),
+    legend.key.height = unit(2.5, "cm"),
     legend.title = element_blank(),
-    legend.text = element_text(color = "black", family = "serif"),
-    axis.text = element_text(color = "grey30", size = 8, family = "serif"),
-    axis.title = element_text(color = "grey30", family = "serif")
+    legend.text = element_text(color = "black", size = 28, family = "serif"),
+    axis.text = element_text(color = "grey30", size = 24, family = "serif"),
+    axis.title = element_text(color = "grey30", size = 28, family = "serif")
   )
+
+ggsave(
+  filename = here("results", "img", "map_large.pdf"),
+  plot = map,
+  width = 30,
+  height = 35,
+  units = "in",
+  device = "pdf" 
+)
 ```
 

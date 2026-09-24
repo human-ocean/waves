@@ -39,7 +39,7 @@ basemap <- get_tiles(bb_poly, provider = "Esri.WorldImagery", zoom = 11)
 
 # Biscayne Bay National Park Polygon 
 ```{r}
-bb_np <- st_read(here("data", "raw", "key_biscayne_np", "BISC_tracts.shp"))
+bb_np <- st_read(here("data", "raw", "key_biscayne_np", "BISC_boundary.shp"))
 
 bb_np_crop <- bb_np %>% 
   st_transform(st_crs(bb_bbox)) %>% 
@@ -60,15 +60,14 @@ res <- 0.002 # In degrees
 sent_grid <- sent |> 
   mutate(lon = (floor(lon / res) * res) + (res / 2),
          lat = (floor(lat / res) * res) + (res / 2)) |> 
-  count(lon, lat) |> 
-  collect()
+  count(lon, lat)
 
 sent_clean <- sent_grid %>%
-  filter(n >= 2)
+  filter(n >=2)
 
-ggplot(sent_clean, aes(x = lon, y = lat)) + 
+ggplot(sent_clean, aes(x = lon, y = lat, fill = n)) + 
   geom_tile() + 
- # scale_fill_viridis_c(option = "inferno", direction = -1,  trans = "log10") + 
+ scale_fill_viridis_c(option = "inferno", direction = -1,  trans = "log10") +
   coord_equal() +
   theme_bw()
 ```
@@ -132,8 +131,8 @@ legend_dummy <- data.frame(
   lon = NA_real_,
   lat = NA_real_,
   feature = factor(
-    c("Boat Traffic", "Biscayne Bay National Park", "Coral Habitat"),
-    levels = c("Boat Traffic", "Biscayne Bay National Park", "Coral Habitat")
+    c("Boat Traffic (>2 boats)", "Biscayne Bay National Park", "Coral Habitat"),
+    levels = c("Boat Traffic (>2 boats)", "Biscayne Bay National Park", "Coral Habitat")
   )
 )
 
@@ -152,15 +151,9 @@ map <- ggplot() +
   ) +
   
   ## Coral habitat
-  geom_sf_pattern(
+  geom_sf(
     data = coral_crop,
-    pattern = "crosshatch",
-    fill = NA,
-    pattern_colour = "#00E5FF",
-    color = "#00E5FF",
-    pattern_density = 0.35,
-    pattern_spacing = 0.015,
-    linewidth = 1.2,
+    fill = "#00E5FF",
     show.legend = FALSE
   ) +
   
@@ -185,7 +178,7 @@ map <- ggplot() +
   scale_fill_manual(
     name = NULL,
     values = c(
-      "Boat Traffic" = "#fc8de6",
+      "Boat Traffic (>2 boats)" = "#fc8de6",
       "Biscayne Bay National Park" = "#FFD600",
       "Coral Habitat" = "#00E5FF"
     ),
@@ -270,12 +263,16 @@ map <- ggplot() +
   
   labs(
     title = "Exploring Biscayne Bay!",
-    subtitle = "Investigating coral reefs and boat traffic",
+    subtitle = "Where do boats go?",
+    caption = "Basemap: Esri World Imagery (2026)\n
+    Biscayne Bay National Park Boundary: National Park Service (2026)\n
+    Coral Habitat Locations: Florida Fish and Wildlife Conservation Commission (2026)\n
+    Vessel Traffic Data: Global Fishing Watch (2026) and Human-Ocean Systems Lab (2026)\n",
     x = "Longitude", 
     y = "Latitude"
   ) +
     
-  theme_minimal(base_size = 22, base_family = "serif") +
+  theme_minimal(base_size = 32, base_family = "serif") +
   theme(
     plot.title = element_text(face = "bold", size = 64, family = "serif", hjust = 0.5),
     plot.subtitle = element_text(face = "bold", size = 42, family = "serif", hjust = 0.5),
@@ -286,16 +283,16 @@ map <- ggplot() +
     legend.key.width = unit(6, "cm"),
     legend.key.height = unit(2.5, "cm"),
     legend.title = element_blank(),
-    legend.text = element_text(color = "black", size = 28, family = "serif"),
-    axis.text = element_text(color = "grey30", size = 24, family = "serif"),
-    axis.title = element_text(color = "grey30", size = 28, family = "serif")
+    legend.text = element_text(color = "black", size = 32, family = "serif"),
+    axis.text = element_text(color = "grey30", size = 32, family = "serif"),
+    axis.title = element_text(color = "grey30", size = 32, family = "serif")
   )
 
 ggsave(
   filename = here("results", "img", "map_large.pdf"),
   plot = map,
-  width = 30,
-  height = 35,
+  width = 36,
+  height = 42,
   units = "in",
   device = "pdf" 
 )
